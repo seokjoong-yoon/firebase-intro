@@ -2,7 +2,6 @@ import React, {useState} from 'react'
 import {authService, firebaseInstance} from "../fbase";
 
 const Auth = () => {
-
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [newAccount, setNewAccount] = useState(false);

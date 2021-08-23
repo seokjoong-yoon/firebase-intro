@@ -6,13 +6,16 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false); // authService.currentUser returns User or null
                                                     // after a few seconds. it have to be awaited.
   const [init, setInit] = useState(false);
+  const [userObj, setUserObj] = useState(null);
 
   useEffect(()=> {
     authService.onAuthStateChanged((user) => {
       if(user){
-        setIsLoggedIn(true)
+        setIsLoggedIn(true);
+        setUserObj(user);
       } else {
-        setIsLoggedIn(false)
+        setIsLoggedIn(false);
+        setUserObj(null);
       }
       setInit(true) // used when loading because onAuthStateChanged() takes some times.
     });
@@ -20,7 +23,7 @@ function App() {
 
   return (
       <>
-        {init ? <AppRouter isLoggedIn={isLoggedIn}/> : "initializing..."}
+        {init ? <AppRouter isLoggedIn={isLoggedIn} userObj={userObj}/> : "initializing..."}
       </>
   );
 }
