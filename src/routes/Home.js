@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from 'react'
-import {dbService} from '../fbase'
+import {dbService, storageService} from '../fbase'
 import Message from '../components/Message'
+import {v4 as uuidv4} from 'uuid'
 
 const Home = ({userObj}) => {
     const [msg, setMsg] = useState("");
@@ -8,14 +9,22 @@ const Home = ({userObj}) => {
     const [attachment, setAttachment] = useState();
     const onSubmit = async(event) => {
         event.preventDefault()
-        // await dbService.collection("messages").add(
-        //     {
-        //         message:msg,
-        //         creatorId: userObj.uid,
-        //         createdAt: Date.now().toString()
-        //     }
-        // )
-        // setMsg("");
+        let attachmentUrl = null;
+        if(attachment) {
+            const attachmentRef = storageService.ref().child(`${userObj.uid}/${uuidv4()}`);
+            const uploadTaskSnapshot = await attachmentRef.putString(attachment, "data_url"); // returns a UploadTask which returns
+            // UploadTaskSnapshot after it is resolved with await. UploadTask is not actually a promise but acts like a promise.
+            attachmentUrl = await uploadTaskSnapshot.ref.getDownloadURL();
+        }
+        const messageObj = {
+            message: msg,
+            creatorId: userObj.uid,
+            createdAt: Date.now().toString(),
+            attachmentUrl,
+        }
+        await dbService.collection("messages").add(messageObj);
+        setMsg("");
+        setAttachment(null);
     }
     const onChange = (event) => {
         const {value} = event.target;

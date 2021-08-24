@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {dbService} from "../fbase";
+import {dbService, storageService} from "../fbase";
 
 const style = {
     border: "1px solid black",
@@ -16,7 +16,10 @@ const Message = ({data, isOwner}) => {
     const onDeleteClick = async(event) => {
         const ok = window.confirm("Are you sure you want to delete this message?")
         if(ok){
-            await dbService.doc(`messages/${data.id}`).delete()
+            await dbService.doc(`messages/${data.id}`).delete();
+            await storageService.refFromURL(data.attachmentUrl).delete();
+            // refFromUrl returns storage reference just by passing the URL string of the file, thus
+            // we don't have to know the uuidv4() value just for the delete function.
         }
     }
 
@@ -37,6 +40,7 @@ const Message = ({data, isOwner}) => {
 
     return(
         <div style={style}>
+            {data.attachmentUrl && <img src={data.attachmentUrl} width="100px" height="100px" alt="img"/>}
             <h4>{data.message}</h4>
             {
                 isEditting ?
